@@ -18,6 +18,18 @@
 </template>
 
 <script>
+
+const getSuperDadJoke = async () => {
+  const headers = {
+    Accept: 'application/json'
+  }
+  const result = await fetch('https://icanhazdadjoke.com/', {
+    headers
+  }).then(r => r.json())
+
+  return result.joke ? result.joke : false
+}
+
 export default {
   name: 'Index',
   data () {
@@ -33,19 +45,19 @@ export default {
       return this.jokes.slice(1, 5)
     }
   },
+  async fetch () {
+    await this.getSuperDadJoke()
+  },
   methods: {
     async getSuperDadJoke () {
-      const headers = {
-        Accept: 'application/json'
-      }
-      const result = await fetch('https://icanhazdadjoke.com/', {
-        headers
-      }).then(r => r.json())
-
-      if (result.joke) {
-        this.jokes.unshift(result.joke)
-      }
+      this.jokes.unshift(await getSuperDadJoke())
     }
   }
+  /*async asyncData () {
+    const jokes = [await getSuperDadJoke()]
+    return {
+      jokes
+    }
+  }*/
 }
 </script>

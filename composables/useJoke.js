@@ -1,24 +1,31 @@
-import { computed, ref } from '@nuxtjs/composition-api'
+import { computed, ref, useAsync, useContext, useFetch, wrapProperty } from '@nuxtjs/composition-api'
 
-export const useJoke = () => {
 
+export const useJoke = (asyncKey) => {
+  const useHttp = wrapProperty('$http', false)
   const jokes = ref([])
-  const joke = computed(() => jokes.value[0] ?? 'Click the button to see an awesome joke!!!!!!!!!!1111^^w3q2')
-  const oldJokes = computed(() => jokes.value.slice(1, 5))
+  const fetchJoke = ref('No fetch joke here')
+
 
   const getSuperDadJoke = async () => {
     const headers = {
       Accept: 'application/json'
     }
-    const result = await fetch('https://icanhazdadjoke.com/', {
+    const result = await useHttp().$get('https://icanhazdadjoke.com/', {
       headers
-    }).then(r => r.json())
-
-    if (result.joke) {
-      jokes.value.unshift(result.joke)
-    }
+    })
+    return result.joke
   }
+
+  useFetch(async () => {
+    fetchJoke.value = await getSuperDadJoke()
+  })
+
+  // ref(null)
+  // When call succeeded ref('Some funny joke')
+  const asyncJoke = useAsync(() => getSuperDadJoke(), asyncKey)
+
   return {
-    joke, oldJokes, getSuperDadJoke
+    fetchJoke, asyncJoke
   }
 }

@@ -1,41 +1,31 @@
 <template>
   <div>
     <h1>Funny Dad Joke</h1>
-    <p>
-      {{ joke }}
-    </p>
-
-    <h2>Old jokes</h2>
-    <ul>
-      <li v-for="oldJoke in oldJokes">
-        {{ oldJoke }}
-      </li>
-    </ul>
-    <button @click="getSuperDadJoke">
-      Click here to get a new joke
-    </button>
+    <p>Fetch: {{ fetchJoke }}</p>
+    <p>Async: {{ asyncJoke }}</p>
   </div>
 </template>
 
 <script>
-import { watchEffect } from '@nuxtjs/composition-api'
-import { useJoke } from '../composables/useJoke.js'
+import { useJoke, } from '../composables/useJoke.js'
+import { defineComponent, ref, useMeta } from '@nuxtjs/composition-api'
 
-export default {
+export default defineComponent({
   name: 'Index',
-  setup () {
+  head: {},
+  setup (props, ctx) {
+    const { fetchJoke, asyncJoke } = useJoke('someRandomKey')
 
-    const { joke, oldJokes, getSuperDadJoke } = useJoke()
+    const message = ref('Computed Meta')
 
-    watchEffect(() => {
-      console.log(joke.value)
-    })
+    useMeta(() => ({
+      title: message.value
+    }))
 
     return {
-      joke,
-      oldJokes,
-      getSuperDadJoke
+      fetchJoke,
+      asyncJoke,
     }
   }
-}
+})
 </script>
